@@ -7,7 +7,8 @@ from core.postgres.initialization import Base
 class ReportModel(Base):
     __tablename__ = "reports"
 
-    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    uuid: Mapped[str] = mapped_column(primary_key=True)
+    id: Mapped[int] = mapped_column()
     object_id: Mapped[str] = mapped_column(ForeignKey("objects.id", ondelete="CASCADE"))
     photo_amount: Mapped[int] = mapped_column(nullable=False)
     known_amount: Mapped[int] = mapped_column(nullable=False)

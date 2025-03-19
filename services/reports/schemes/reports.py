@@ -1,4 +1,4 @@
-from typing import List
+from typing import Dict, List
 
 from pydantic import BaseModel
 
@@ -39,4 +39,4 @@ class ReportsGetRs(BaseModel):
     photo_amount: int
     construction_report: Construction
     safety_report: Safety
-    urls: List[str]
+    urls: Dict[str, List[str]]

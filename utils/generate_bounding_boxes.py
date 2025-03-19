@@ -2,8 +2,7 @@ import random
 
 import cv2
 
-from utils.cache_colors import (get_class_color_from_redis, get_label_color_from_redis, store_class_color_in_redis,
-                                store_label_color_in_redis)
+from utils.cache_colors import get_color_from_redis, store_color_in_redis
 
 
 def get_random_contrast_color():
@@ -17,10 +16,10 @@ async def generate_bounding_boxes_for_construction(redis_client, image, boxes):
         confidence = box['confidence']
 
         label = box['class']
-        color = await get_class_color_from_redis(redis_client, label)
+        color = await get_color_from_redis(redis_client, label)
         if color is None:
             color = get_random_contrast_color()
-            await store_class_color_in_redis(redis_client, label, color)
+            await store_color_in_redis(redis_client, label, color)
 
         cv2.rectangle(image, (x, y), (x + w, y + h), color, 1)
 
@@ -36,9 +35,9 @@ async def generate_bounding_boxes_for_safety(redis_client, image, boxes):
             box['height'])
 
         label = box['label']
-        color = await get_label_color_from_redis(redis_client, label)
+        color = await get_color_from_redis(redis_client, label)
         if color is None:
             color = get_random_contrast_color()
-            await store_label_color_in_redis(redis_client, label, color)
+            await store_color_in_redis(redis_client, label, color)
 
         cv2.rectangle(image, (x, y), (x + w, y + h), color, 1)

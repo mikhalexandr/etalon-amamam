@@ -4,6 +4,7 @@ import numpy
 import cv2
 
 from core.settings import settings
+from core.minio.access import get_minio_client
 from utils.generate_bounding_boxes import generate_bounding_boxes_for_construction, generate_bounding_boxes_for_safety
 
 
@@ -23,21 +24,20 @@ async def process_photo(
         object_id: str,
         file: bytes,
         reports_count: int,
-        minio_client,
         redis_client,
         roboflow_client
-) -> Dict[float, int, int, dict, int, int, int, int, int, dict]:
-
-    image = numpy.frombuffer(file, numpy.uint8)
+) -> Dict:
+    np_array = numpy.frombuffer(file, numpy.uint8)
+    image = cv2.imdecode(np_array, cv2.IMREAD_COLOR)
     image = await resize_photo(image, 1000, 1000)
     image_2 = image.copy()
 
-    result_construction = await roboflow_client.infer_async(image, model_id=settings.roboflow_model_ids[0])
+    result_construction = await roboflow_client.infer_async(image, model_id=str(settings.roboflow_model_ids).split(",")[0])
 
     time = result_construction.get("time")
     predictions = result_construction.get("predictions", [])
     prediction_amount = len(predictions)
-    types_amount = max(predictions, key=lambda x: x.get('class_id')).get('class')
+    types_amount = int(max(predictions, key=lambda x: x.get('class_id')).get('class'))
 
     if "predictions" in result_construction:
         await generate_bounding_boxes_for_construction(redis_client, image, result_construction['predictions'])
@@ -46,15 +46,16 @@ async def process_photo(
     image_bytes = buffer.tobytes()
 
     object_name = f"{object_id}/{reports_count}/construction/{num}.png"
-    async with minio_client:
-        await minio_client.put_object(
+    minio_client = await get_minio_client()
+    async with minio_client as client:
+        await client.put_object(
             Bucket=settings.minio_bucket,
             Key=object_name,
             Body=image_bytes
         )
 
-    result_safety_1 = await roboflow_client.infer_async(image_2, model_id=settings.roboflow_model_ids[2])
-    result_safety_2 = await roboflow_client.infer_async(image_2, model_id=settings.roboflow_model_ids[1])
+    result_safety_1 = await roboflow_client.infer_async(image_2, model_id=str(settings.roboflow_model_ids).split(",")[2])
+    result_safety_2 = await roboflow_client.infer_async(image_2, model_id=str(settings.roboflow_model_ids).split(",")[1])
 
     boxes1 = result_safety_1.get("boxes", [])
     boxes2 = result_safety_2.get("boxes", [])
@@ -87,8 +88,9 @@ async def process_photo(
     image_bytes = buffer.tobytes()
 
     object_name = f"{object_id}/{reports_count}/safety/{num}.png"
-    async with minio_client:
-        await minio_client.put_object(
+    minio_client = await get_minio_client()
+    async with minio_client as client:
+        await client.put_object(
             Bucket=settings.minio_bucket,
             Key=object_name,
             Body=image_bytes
@@ -96,7 +98,7 @@ async def process_photo(
 
     return {
         "time": time,
-        "prediction_amount": prediction_amount,
+        "predictions_amount": prediction_amount,
         "types_amount": types_amount,
         "predictions": predictions,
         "count_person_violations": count_person_violations,

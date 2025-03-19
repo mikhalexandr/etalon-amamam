@@ -1,6 +1,7 @@
 import io
 
 from core.settings import settings
+from core.minio.access import get_minio_client
 
 async def process_txt(
         object_id,
@@ -17,7 +18,6 @@ async def process_txt(
         count_person_without_helmet,
         count_person,
         filtered_boxes,
-        minio_client
 ):
     report_lines = [
         f"Объект: {name}",
@@ -27,25 +27,27 @@ async def process_txt(
         f"Количество распознанных элементов: {predictions_amount}",
         f"Количество распознанных типов элементов: {types_amount}",
         "Прогнозы:",
-        "   |-----------------------------|"
     ]
-
-    for prediction in predictions:
-        report_lines.append(f"   | Координата X: {prediction.get('x')}")
-        report_lines.append(f"   | Координата Y: {prediction.get('y')}")
-        report_lines.append(f"   | Ширина: {prediction.get('width')}")
-        report_lines.append(f"   | Высота: {prediction.get('height')}")
-        report_lines.append(f"   | Четкость распознавания: {int(round(prediction.get('confidence'), 2) * 100)}%")
-        report_lines.append(f"   | Тип элемента: {prediction.get('class')}")
+    for key, value in predictions.items():
+        report_lines.append(f"*{key}:")
         report_lines.append("   |-----------------------------|")
+        for prediction in value:
+            report_lines.append(f"   | Координата X: {prediction.get('x')}")
+            report_lines.append(f"   | Координата Y: {prediction.get('y')}")
+            report_lines.append(f"   | Ширина: {prediction.get('width')}")
+            report_lines.append(f"   | Высота: {prediction.get('height')}")
+            report_lines.append(f"   | Четкость распознавания: {int(round(prediction.get('confidence'), 2) * 100)}%")
+            report_lines.append(f"   | Тип элемента: {prediction.get('class')}")
+            report_lines.append("   |-----------------------------|")
 
     report_text = "\n".join(report_lines)
     report_bytes = report_text.encode('utf-8')
     report_stream = io.BytesIO(report_bytes)
-    object_name = f"{object_id}/{reports_count}/safety/{reports_count}.txt"
+    object_name = f"{object_id}/{reports_count}/construction/Report_{reports_count}.txt"
 
-    async with minio_client:
-        await minio_client.put_object(
+    minio_client = await get_minio_client()
+    async with minio_client as client:
+        await client.put_object(
             Bucket=settings.minio_bucket,
             Key=object_name,
             Body=report_stream
@@ -61,24 +63,26 @@ async def process_txt(
         f"Количество нарушений со стороны персонала: {count_person_violations}",
         f"Количество нарушений на объекте: {count_construction_violations}",
         "Все объекты:",
-        "   |-----------------------------|"
     ]
-
-    for box in filtered_boxes:
-        report_lines.append(f"   | Метка: {box.get('label')}")
-        report_lines.append(f"   | Координата X: {box.get('x')}")
-        report_lines.append(f"   | Координата Y: {box.get('y')}")
-        report_lines.append(f"   | Ширина: {box.get('width')}")
-        report_lines.append(f"   | Высота: {box.get('height')}")
+    for key, value in filtered_boxes.items():
+        report_lines.append(f"*{key}:")
         report_lines.append("   |-----------------------------|")
+        for box in value:
+            report_lines.append(f"   | Метка: {box.get('label')}")
+            report_lines.append(f"   | Координата X: {box.get('x')}")
+            report_lines.append(f"   | Координата Y: {box.get('y')}")
+            report_lines.append(f"   | Ширина: {box.get('width')}")
+            report_lines.append(f"   | Высота: {box.get('height')}")
+            report_lines.append("   |-----------------------------|")
 
     report_text = "\n".join(report_lines)
     report_bytes = report_text.encode('utf-8')
     report_stream = io.BytesIO(report_bytes)
-    object_name = f"{object_id}/{reports_count}/safety/{reports_count}.txt"
+    object_name = f"{object_id}/{reports_count}/safety/Report_{reports_count}.txt"
 
-    async with minio_client:
-        await minio_client.put_object(
+    minio_client = await get_minio_client()
+    async with minio_client as client:
+        await client.put_object(
             Bucket=settings.minio_bucket,
             Key=object_name,
             Body=report_stream

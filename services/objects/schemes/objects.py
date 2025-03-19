@@ -8,7 +8,7 @@ class ObjectsCreateRq(BaseModel):
 
 
 class ObjectsCreateRs(BaseModel):
-    status: str
+    id: str
 
 
 class Objects(BaseModel):

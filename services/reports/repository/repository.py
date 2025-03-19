@@ -1,6 +1,6 @@
 from typing import List
 
-from aiobotocore.session import get_session
+import uuid
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from sqlalchemy import desc, update
@@ -8,20 +8,20 @@ from sqlalchemy.future import select
 from sqlalchemy.dialects.postgresql import insert
 
 from services.objects.models.objects import ObjectModel
-from services.reports.schemes.reports import Reports, ReportsListRs, ReportsGetRs
+from services.reports.schemes.reports import Reports, ReportsListRs, ReportsGetRs, Construction, Safety
 from services.reports.models.reports import ReportModel
 from core.settings import settings
+from utils.get_s3_urls import generate_files_dict
 
 
 class ReportsRepository:
-    def __init__(self, db_session: AsyncSession, minio_client: get_session):
+    def __init__(self, db_session: AsyncSession):
         self.db_session = db_session
-        self.minio_client = minio_client
 
     async def get_object_info(
             self,
             object_id: str
-    ) -> List[str, int]:
+    ) -> List:
         result = await self.db_session.execute(
             select(
                 ObjectModel.name,
@@ -49,6 +49,7 @@ class ReportsRepository:
 
     async def create(
             self,
+            report_id: int,
             object_id: str,
             num: int,
             prediction_amount: int,
@@ -60,6 +61,8 @@ class ReportsRepository:
             count_construction_violations: int
     ):
         stmt = insert(ReportModel).values(
+            uuid=str(uuid.uuid4()),
+            id=report_id,
             object_id=object_id,
             photo_amount=num,
             known_amount=prediction_amount,
@@ -115,7 +118,6 @@ class ReportsRepository:
             report_id: int
     ) -> ReportsGetRs:
         object_name = await self.get_object_info(object_id)
-
         result = await self.db_session.execute(
             select(
                 ReportModel.created_at,
@@ -136,50 +138,22 @@ class ReportsRepository:
         )
         report = result.fetchall()[0]
 
-        async def list_objects_recursive(prefix: str) -> List[str]:
-            urls = []
-            continuation_token = None
-            while True:
-                list_kwargs = {
-                    'Bucket': settings.minio_bucket,
-                    'Prefix': prefix,
-                    'Delimiter': '/'
-                }
-                if continuation_token:
-                    list_kwargs['ContinuationToken'] = continuation_token
+        urls = await generate_files_dict(
+            bucket_name=settings.minio_bucket,
+            base_prefix=f"{object_id}/{report_id}/"
+        )
 
-                response = await self.minio_client.list_objects_v2(**list_kwargs)
-
-                if 'Contents' in response:
-                    urls.extend([
-                        f"http://{self.minio_client._endpoint.host}/{settings.minio_bucket}/{obj['Key']}"
-                        for obj in response['Contents']
-                    ])
-
-                if 'CommonPrefixes' in response:
-                    for cp in response['CommonPrefixes']:
-                        sub_prefix = cp['Prefix']
-                        urls.extend(await list_objects_recursive(sub_prefix))
-
-                if 'NextContinuationToken' in response:
-                    continuation_token = response['NextContinuationToken']
-                else:
-                    break
-
-            return urls
-
-        urls = await list_objects_recursive(f"{object_id}/{report_id}/")
-
+        print(urls)
         return ReportsGetRs(
             object_name=object_name[0],
             created_at=report.created_at.strftime('%Y-%m-%d %H:%M:%S'),
             photo_amount=report.photo_amount,
-            construction_report=ReportsGetRs.Construction(
+            construction_report=Construction(
                 known_amount=report.known_amount,
                 types_amount=report.types_amount,
-                completness=report.known_amount / report.types_amount
+                completeness=int(report.known_amount / report.types_amount)
             ),
-            safety_report=ReportsGetRs.Safety(
+            safety_report=Safety(
                 workers_amount=report.workers_amount,
                 good_workers_amount=report.good_workers_amount,
                 bad_workers_amount=report.bad_workers_amount,

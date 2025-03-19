@@ -28,7 +28,7 @@ class ObjectsRepository:
         await self.db_session.commit()
 
         return ObjectsCreateRs(
-            status="OK"
+            id=id_
         )
 
     async def list(

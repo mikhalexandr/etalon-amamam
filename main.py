@@ -8,7 +8,6 @@ from core.settings import settings
 from core.logger import init_logger, logger
 from core.postgres.initialization import PostgresClient
 from core.redis.initialization import RedisClient
-from core.minio.initialization import MinioClient
 from core.roboflow.initialization import RoboflowClient
 from services import init_routers
 
@@ -18,13 +17,11 @@ async def lifespan(_app: FastAPI):
     init_logger()
     await PostgresClient.init_postgres()
     await RedisClient.init_redis()
-    await MinioClient.init_minio()
     await RoboflowClient.init_roboflow()
     logger.info("All resources have been successfully initialized")
     yield
     await PostgresClient.close_postgres()
     await RedisClient.close_redis()
-    await MinioClient.close_minio()
     await RoboflowClient.close_roboflow()
     logger.info("All resources have been successfully closed")
 

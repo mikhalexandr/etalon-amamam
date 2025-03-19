@@ -3,7 +3,6 @@ from typing import List
 import redis.asyncio as redis
 from fastapi import File, UploadFile
 from inference_sdk import InferenceHTTPClient
-from aiobotocore.session import get_session
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from services.reports.repository.repository import ReportsRepository
@@ -16,12 +15,10 @@ class ReportsUseCase:
     def __init__(
             self,
             db_session: AsyncSession,
-            minio_client: get_session,
             redis_client: redis.Redis = None,
             roboflow_client: InferenceHTTPClient = None
     ):
-        self.repository = ReportsRepository(db_session, minio_client)
-        self.minio_client = minio_client
+        self.repository = ReportsRepository(db_session)
         self.redis_client = redis_client
         self.roboflow_client = roboflow_client
 
@@ -51,20 +48,22 @@ class ReportsUseCase:
                 object_id,
                 content,
                 reports_count,
-                self.minio_client,
                 self.redis_client,
                 self.roboflow_client
             )
             time += result['time']
             predictions_amount += result['predictions_amount']
             types_amount += result['types_amount']
-            predictions.update(result['predictions'])
+            if 'predictions' in result and len(result['predictions']) > 0:
+                predictions[f"Photo {num}"] = result['predictions']
             count_person_violations += result['count_person_violations']
             count_construction_violations += result['count_construction_violations']
             count_person_with_helmet += result['count_person_with_helmet']
             count_person_without_helmet += result['count_person_without_helmet']
             count_person += result['count_person']
-            filtered_boxes.update(result['filtered_boxes'])
+            print(result['filtered_boxes'])
+            if 'filtered_boxes' in result and len(result['filtered_boxes']) > 0:
+                filtered_boxes[f"Photo {num}"] = result['filtered_boxes']
         await process_txt(
             object_id,
             name,
@@ -80,9 +79,9 @@ class ReportsUseCase:
             count_person_without_helmet,
             count_person,
             filtered_boxes,
-            self.minio_client
         )
         await self.repository.create(
+            reports_count,
             object_id,
             num,
             predictions_amount,

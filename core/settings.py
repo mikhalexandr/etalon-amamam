@@ -22,7 +22,7 @@ class Settings(BaseSettings):
 
     roboflow_api_url: str = Field(..., env="ROBOFLOW_API_URL")
     roboflow_api_key: str = Field(..., env="ROBOFLOW_API_KEY")
-    roboflow_model_ids: str = Field(..., env="ROBOFLOW_MODEL_IDS").split(",")
+    roboflow_model_ids: str = Field(..., env="ROBOFLOW_MODEL_IDS")
 
     class Config:
         env_file = "./.env"
