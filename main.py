@@ -48,7 +48,8 @@ def init_app() -> FastAPI:
     init_routers(_app)
     return _app
 
+app = init_app()
+
 if __name__ == "__main__":
-    app = init_app()
     host, port = settings.server_address.split(":")
     uvicorn.run(app, host=host, port=int(port))
