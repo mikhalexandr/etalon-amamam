@@ -151,7 +151,7 @@ class ReportsRepository:
             construction_report=Construction(
                 known_amount=report.known_amount,
                 types_amount=report.types_amount,
-                completeness=int(report.known_amount / report.types_amount)
+                completeness=int(report.known_amount / report.types_amount) if report.types_amount != 0 else 0
             ),
             safety_report=Safety(
                 workers_amount=report.workers_amount,
