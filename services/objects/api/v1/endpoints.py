@@ -1,5 +1,4 @@
-from aiohttp.abc import HTTPException
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from services.objects.schemes.objects import ObjectsListRs, ObjectsCreateRs, ObjectsCreateRq
@@ -10,6 +9,26 @@ router = APIRouter(
     prefix="/api/objects",
     tags=["objects"]
 )
+
+
+@router.post(
+    "/create",
+    status_code=200,
+    response_model=ObjectsCreateRs
+)
+async def object_create(
+        request: ObjectsCreateRq,
+        db_session: AsyncSession = Depends(get_async_session),
+) -> ObjectsCreateRs:
+    use_case = ObjectsUseCase(db_session)
+    try:
+        response = await use_case.create(request)
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=str(e)
+        )
+    return response
 
 
 @router.get(
@@ -23,26 +42,6 @@ async def objects_list(
     use_case = ObjectsUseCase(db_session)
     try:
         response = await use_case.list()
-    except Exception as e:
-        raise HTTPException(
-            status_code=500,
-            detail=str(e)
-        )
-    return response
-
-
-@router.post(
-    "/create",
-    status_code=200,
-    response_model=ObjectsCreateRs
-)
-async def objects_create(
-        request: ObjectsCreateRq,
-        db_session: AsyncSession = Depends(get_async_session),
-) -> ObjectsCreateRs:
-    use_case = ObjectsUseCase(db_session)
-    try:
-        response = await use_case.create(request)
     except Exception as e:
         raise HTTPException(
             status_code=500,

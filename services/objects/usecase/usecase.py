@@ -8,13 +8,13 @@ class ObjectsUseCase:
     def __init__(self, db_session: AsyncSession):
         self.repository = ObjectsRepository(db_session)
 
-    async def list(
-            self
-    ) -> ObjectsListRs:
-        return await self.repository.list()
-
     async def create(
             self,
             request: ObjectsCreateRq
     ) -> ObjectsCreateRs:
         return await self.repository.create(request)
+
+    async def list(
+            self
+    ) -> ObjectsListRs:
+        return await self.repository.list()

@@ -1,7 +1,7 @@
-from minio import Minio
+from aiobotocore.session import get_session
 
 from core.minio.initialization import MinioClient
 
 
-def get_minio() -> Minio:
+async def get_minio() -> get_session:
     return MinioClient.get_minio()

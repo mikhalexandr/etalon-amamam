@@ -18,13 +18,13 @@ async def lifespan(_app: FastAPI):
     init_logger()
     await PostgresClient.init_postgres()
     await RedisClient.init_redis()
-    MinioClient.init_minio()
+    await MinioClient.init_minio()
     await RoboflowClient.init_roboflow()
     logger.info("All resources have been successfully initialized")
     yield
     await PostgresClient.close_postgres()
     await RedisClient.close_redis()
-    MinioClient.close_minio()
+    await MinioClient.close_minio()
     await RoboflowClient.close_roboflow()
     logger.info("All resources have been successfully closed")
 
