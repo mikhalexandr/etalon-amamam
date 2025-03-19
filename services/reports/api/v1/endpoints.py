@@ -4,7 +4,7 @@ import redis.asyncio as redis
 from inference_sdk import InferenceHTTPClient
 
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
-from fastapi.responses import StreamingResponse
+from fastapi.responses import Response
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.minio.access import get_minio_client
@@ -34,13 +34,7 @@ async def report_create(
         roboflow_client: InferenceHTTPClient = Depends(get_roboflow)
 ) -> ReportsCreateRs:
     use_case = ReportsUseCase(db_session, redis_client, roboflow_client)
-    try:
-        response = await use_case.create(object_id, files)
-    except Exception as e:
-        raise HTTPException(
-            status_code=500,
-            detail=str(e)
-        )
+    response = await use_case.create(object_id, files)
     return response
 
 
@@ -89,17 +83,19 @@ async def report_get(
     "/download/{path:path}",
     status_code=200,
 )
-async def report_download(
+async def download_file(
         path: str,
-) -> StreamingResponse:
+) -> Response:
     try:
         minio_client = await get_minio_client()
         async with minio_client as client:
             response = await client.get_object(Bucket=settings.minio_bucket, Key=path)
-            file_stream = response['Body']
-            return StreamingResponse(file_stream.iter_chunks(), media_type='application/octet-stream', headers={
-                "Content-Disposition": f"attachment; filename={path.split('/')[-1]}"
-            })
+            file_content = await response['Body'].read()
+            headers = {
+                "Content-Disposition": f"attachment; filename={path.split('/')[-1]}",
+                "Content-Type": "application/octet-stream"
+            }
+            return Response(content=file_content, headers=headers)
     except Exception as e:
         raise HTTPException(
             status_code=404,
