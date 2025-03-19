@@ -4,7 +4,7 @@ from pydantic import BaseModel
 
 
 class ReportsCreateRs(BaseModel):
-    status: str
+    report_id: int
 
 
 class Reports(BaseModel):

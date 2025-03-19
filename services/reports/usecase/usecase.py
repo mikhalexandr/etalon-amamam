@@ -94,7 +94,7 @@ class ReportsUseCase:
         )
         await self.repository.update_reports_count(object_id, reports_count)
         return ReportsCreateRs(
-            status="OK"
+            report_id=reports_count
         )
 
     async def list(
