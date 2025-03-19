@@ -67,12 +67,13 @@ async def process_txt(
     for key, value in filtered_boxes.items():
         report_lines.append(f"*{key}:")
         report_lines.append("   |-----------------------------|")
-        for box in value:
-            report_lines.append(f"   | Метка: {box.get('label')}")
-            report_lines.append(f"   | Координата X: {box.get('x')}")
-            report_lines.append(f"   | Координата Y: {box.get('y')}")
-            report_lines.append(f"   | Ширина: {box.get('width')}")
-            report_lines.append(f"   | Высота: {box.get('height')}")
+        for prediction in value:
+            report_lines.append(f"   | Координата X: {prediction.get('x')}")
+            report_lines.append(f"   | Координата Y: {prediction.get('y')}")
+            report_lines.append(f"   | Ширина: {prediction.get('width')}")
+            report_lines.append(f"   | Высота: {prediction.get('height')}")
+            report_lines.append(f"   | Четкость распознавания: {int(round(prediction.get('confidence'), 2) * 100)}%")
+            report_lines.append(f"   | Тип элемента: {prediction.get('class')}")
             report_lines.append("   |-----------------------------|")
 
     report_text = "\n".join(report_lines)

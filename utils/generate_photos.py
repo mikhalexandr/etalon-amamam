@@ -5,7 +5,7 @@ import cv2
 
 from core.settings import settings
 from core.minio.access import get_minio_client
-from utils.generate_bounding_boxes import generate_bounding_boxes_for_construction, generate_bounding_boxes_for_safety
+from utils.generate_bounding_boxes import generate_bounding_boxes
 
 
 async def resize_photo(image, max_width, max_height):
@@ -40,7 +40,7 @@ async def process_photo(
     types_amount = int(max(predictions, key=lambda x: x.get('class_id')).get('class'))
 
     if "predictions" in result_construction:
-        await generate_bounding_boxes_for_construction(redis_client, image, result_construction['predictions'])
+        await generate_bounding_boxes(redis_client, image, result_construction['predictions'])
 
     _, buffer = cv2.imencode('.png', image)
     image_bytes = buffer.tobytes()
@@ -57,8 +57,8 @@ async def process_photo(
     result_safety_1 = await roboflow_client.infer_async(image_2, model_id=str(settings.roboflow_model_ids).split(",")[2])
     result_safety_2 = await roboflow_client.infer_async(image_2, model_id=str(settings.roboflow_model_ids).split(",")[1])
 
-    boxes1 = result_safety_1.get("boxes", [])
-    boxes2 = result_safety_2.get("boxes", [])
+    boxes1 = result_safety_1.get("predictions", [])
+    boxes2 = result_safety_2.get("predictions", [])
     combined_boxes = boxes1 + boxes2
     safety_labels = {"No-Hardhat", "No-mask", "No-safetyvest"}
     count_person_violations = 0
@@ -67,7 +67,7 @@ async def process_photo(
     count_person_without_helmet = 0
     filtered_boxes = []
     for box in combined_boxes:
-        label = box["label"]
+        label = box["class"]
         if label == "Person" or label == "Sky":
             continue
         filtered_boxes.append(box)
@@ -81,8 +81,8 @@ async def process_photo(
             count_person_without_helmet += 1
     count_person = count_person_without_helmet + count_person_with_helmet
 
-    if "boxes" in filtered_boxes:
-        await generate_bounding_boxes_for_safety(redis_client, image_2, filtered_boxes['boxes'])
+    if "predictions" in filtered_boxes:
+        await generate_bounding_boxes(redis_client, image_2, filtered_boxes['predictions'])
 
     _, buffer = cv2.imencode('.png', image_2)
     image_bytes = buffer.tobytes()

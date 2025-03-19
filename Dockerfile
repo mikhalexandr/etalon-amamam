@@ -1,6 +1,6 @@
-FROM python:3.11
+FROM python:3.12
 
-WORKDIR /main
+WORKDIR /app
 
 RUN apt-get update && apt-get install -y \
     libgl1-mesa-glx \
@@ -8,12 +8,9 @@ RUN apt-get update && apt-get install -y \
 
 COPY requirements.txt .
 
-RUN pip3 install --upgrade pip
-RUN pip install -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
-COPY . /main
-WORKDIR /main
 
-EXPOSE 5252
+COPY . .
 
-CMD ["python3", "main.py"]
+CMD ["uvicorn", "main:app"]
