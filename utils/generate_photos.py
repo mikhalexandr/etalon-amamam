@@ -37,7 +37,10 @@ async def process_photo(
     time = result_construction.get("time")
     predictions = result_construction.get("predictions", [])
     prediction_amount = len(predictions)
-    types_amount = int(max(predictions, key=lambda x: x.get('class_id')).get('class'))
+    try:
+        types_amount = int(max(predictions, key=lambda x: x.get('class_id')).get('class'))
+    except:
+        types_amount = 0
 
     if "predictions" in result_construction:
         await generate_bounding_boxes(redis_client, image, result_construction['predictions'])
@@ -57,6 +60,11 @@ async def process_photo(
     result_safety_1 = await roboflow_client.infer_async(image_2, model_id=str(settings.roboflow_model_ids).split(",")[2])
     result_safety_2 = await roboflow_client.infer_async(image_2, model_id=str(settings.roboflow_model_ids).split(",")[1])
 
+    print(str(settings.roboflow_model_ids).split(",")[2], str(settings.roboflow_model_ids).split(",")[1])
+
+    print(result_safety_1)
+    print(result_safety_2)
+
     boxes1 = result_safety_1.get("predictions", [])
     boxes2 = result_safety_2.get("predictions", [])
     combined_boxes = boxes1 + boxes2
@@ -68,8 +76,6 @@ async def process_photo(
     filtered_boxes = []
     for box in combined_boxes:
         label = box["class"]
-        if label == "Person" or label == "Sky":
-            continue
         filtered_boxes.append(box)
         if label in safety_labels:
             count_person_violations += 1
@@ -81,8 +87,8 @@ async def process_photo(
             count_person_without_helmet += 1
     count_person = count_person_without_helmet + count_person_with_helmet
 
-    if "predictions" in filtered_boxes:
-        await generate_bounding_boxes(redis_client, image_2, filtered_boxes['predictions'])
+    if len(filtered_boxes) > 0:
+        await generate_bounding_boxes(redis_client, image_2, filtered_boxes)
 
     _, buffer = cv2.imencode('.png', image_2)
     image_bytes = buffer.tobytes()
