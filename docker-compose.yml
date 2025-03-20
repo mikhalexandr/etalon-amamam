@@ -1,23 +1,23 @@
 name: etalon
 
 services:
-  api:
-    container_name: api
-    build:
-      context: .
-      dockerfile: Dockerfile
-    restart: unless-stopped
-    env_file:
-        - ./.env
-    ports:
-      - "8094:8094"
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-      minio:
-        condition: service_healthy
+#  api:
+#    container_name: api
+#    build:
+#      context: .
+#      dockerfile: Dockerfile
+#    restart: unless-stopped
+#    env_file:
+#        - ./.env
+#    ports:
+#      - "8094:8094"
+#    depends_on:
+#      postgres:
+#        condition: service_healthy
+#      redis:
+#        condition: service_healthy
+#      minio:
+#        condition: service_healthy
 
   postgres:
     image: postgres

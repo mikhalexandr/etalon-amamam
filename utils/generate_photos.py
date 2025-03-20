@@ -36,7 +36,7 @@ async def process_photo(
 
     result_construction = await roboflow_client.infer_async(image,
                                                             model_id=str(settings.roboflow_model_ids).split(",")[0])
-
+    # Генерация фотоотчета об объекте
     time = result_construction.get("time")
     predictions = result_construction.get("predictions", [])
     prediction_amount = len(predictions)
@@ -60,10 +60,11 @@ async def process_photo(
             Body=image_bytes
         )
 
+    # Генерация фотоотчёта о безопасности
     result_safety_1 = await roboflow_client.infer_async(image_2,
-                                                        model_id=str(settings.roboflow_model_ids).split(",")[2])
-    result_safety_2 = await roboflow_client.infer_async(image_2,
                                                         model_id=str(settings.roboflow_model_ids).split(",")[1])
+    result_safety_2 = await roboflow_client.infer_async(image_2,
+                                                        model_id=str(settings.roboflow_model_ids).split(",")[2])
 
     boxes1 = result_safety_1.get("predictions", [])
     boxes2 = result_safety_2.get("predictions", [])
@@ -71,24 +72,18 @@ async def process_photo(
     safety_labels = {"No-Hardhat", "No-mask", "No-safetyvest"}
     count_person_violations = 0
     count_construction_violations = 0
-    count_person_with_helmet = 0
-    count_person_without_helmet = 0
-    filtered_boxes = []
+    count_person = 0
     for box in combined_boxes:
         label = box["class"]
-        filtered_boxes.append(box)
         if label in safety_labels:
             count_person_violations += 1
         elif label == "Invalid_balcony":
             count_construction_violations += 1
-        elif label == "person_with_helmet":
-            count_person_with_helmet += 1
-        elif label == "person_without_helmet":
-            count_person_without_helmet += 1
-    count_person = count_person_without_helmet + count_person_with_helmet
+        elif label.lower() == "person":
+            count_person += 1
 
-    if len(filtered_boxes) > 0:
-        await generate_bounding_boxes(redis_client, image_2, filtered_boxes)
+    if len(combined_boxes) > 0:
+        await generate_bounding_boxes(redis_client, image_2, combined_boxes)
 
     _, buffer = cv2.imencode('.png', image_2)
     image_bytes = buffer.tobytes()
@@ -109,8 +104,6 @@ async def process_photo(
         "predictions": predictions,
         "count_person_violations": count_person_violations,
         "count_construction_violations": count_construction_violations,
-        "count_person_with_helmet": count_person_with_helmet,
-        "count_person_without_helmet": count_person_without_helmet,
         "count_person": count_person,
-        "filtered_boxes": filtered_boxes
+        "filtered_boxes": combined_boxes
     }

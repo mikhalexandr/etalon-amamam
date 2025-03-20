@@ -15,8 +15,6 @@ class ReportModel(Base):
     known_amount: Mapped[int] = mapped_column(nullable=False)
     types_amount: Mapped[int] = mapped_column(nullable=False)
     workers_amount: Mapped[int] = mapped_column(nullable=False)
-    good_workers_amount: Mapped[int] = mapped_column(nullable=False)
-    bad_workers_amount: Mapped[int] = mapped_column(nullable=False)
     workers_violation_amount: Mapped[int] = mapped_column(nullable=False)
     object_violation_amount: Mapped[int] = mapped_column(nullable=False)
     is_safe: Mapped[int] = mapped_column(nullable=False)

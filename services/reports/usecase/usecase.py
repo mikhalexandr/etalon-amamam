@@ -38,8 +38,6 @@ class ReportsUseCase:
         predictions = {}
         count_person_violations = 0
         count_construction_violations = 0
-        count_person_with_helmet = 0
-        count_person_without_helmet = 0
         count_person = 0
         filtered_boxes = {}
         num = 0
@@ -61,10 +59,7 @@ class ReportsUseCase:
                 predictions[f"Photo {num}"] = result['predictions']
             count_person_violations += result['count_person_violations']
             count_construction_violations += result['count_construction_violations']
-            count_person_with_helmet += result['count_person_with_helmet']
-            count_person_without_helmet += result['count_person_without_helmet']
             count_person += result['count_person']
-            print(result['filtered_boxes'])
             if 'filtered_boxes' in result and len(result['filtered_boxes']) > 0:
                 filtered_boxes[f"Photo {num}"] = result['filtered_boxes']
         await process_txt(
@@ -78,8 +73,6 @@ class ReportsUseCase:
             predictions,
             count_person_violations,
             count_construction_violations,
-            count_person_with_helmet,
-            count_person_without_helmet,
             count_person,
             filtered_boxes,
         )
@@ -90,8 +83,6 @@ class ReportsUseCase:
             predictions_amount,
             types_amount,
             count_person,
-            count_person_with_helmet,
-            count_person_without_helmet,
             count_person_violations,
             count_construction_violations,
         )

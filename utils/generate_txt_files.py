@@ -16,11 +16,10 @@ async def process_txt(
         predictions,
         count_person_violations,
         count_construction_violations,
-        count_person_with_helmet,
-        count_person_without_helmet,
         count_person,
         filtered_boxes,
 ):
+    # Генерация отчета об объекте
     report_lines = [
         f"Объект: {name}",
         f"Отчет №{reports_count}",
@@ -55,13 +54,12 @@ async def process_txt(
             Body=report_stream
         )
 
+    # Генерация отчета о нарушениях
     report_lines = [
         f"Объект: {name}",
         f"Отчет №{reports_count}",
         f"Количество фото: {number}",
         f"Количество рабочих: {count_person}",
-        f"Количество рабочих с правильной экипировкой: {count_person_with_helmet}",
-        f"Количество рабочих с неправильной экипировкой: {count_person_without_helmet}",
         f"Количество нарушений со стороны персонала: {count_person_violations}",
         f"Количество нарушений на объекте: {count_construction_violations}",
         "Элементы объекта:",

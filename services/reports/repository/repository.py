@@ -59,8 +59,6 @@ class ReportsRepository:
             prediction_amount: int,
             types_amount: int,
             count_person: int,
-            count_person_with_helmet: int,
-            count_person_without_helmet: int,
             count_person_violations: int,
             count_construction_violations: int
     ):
@@ -72,8 +70,6 @@ class ReportsRepository:
             known_amount=prediction_amount,
             types_amount=types_amount,
             workers_amount=count_person,
-            good_workers_amount=count_person_with_helmet,
-            bad_workers_amount=count_person_without_helmet,
             workers_violation_amount=count_person_violations,
             object_violation_amount=count_construction_violations,
             is_safe=1 if count_person_violations == 0 and count_construction_violations == 0 else 0
@@ -132,8 +128,6 @@ class ReportsRepository:
                 ReportModel.known_amount,
                 ReportModel.types_amount,
                 ReportModel.workers_amount,
-                ReportModel.good_workers_amount,
-                ReportModel.bad_workers_amount,
                 ReportModel.workers_violation_amount,
                 ReportModel.object_violation_amount,
                 ReportModel.is_safe
@@ -161,8 +155,6 @@ class ReportsRepository:
             ),
             safety_report=Safety(
                 workers_amount=report.workers_amount,
-                good_workers_amount=report.good_workers_amount,
-                bad_workers_amount=report.bad_workers_amount,
                 workers_violation_amount=report.workers_violation_amount,
                 object_violation_amount=report.object_violation_amount,
                 is_safe=report.is_safe

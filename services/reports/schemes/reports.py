@@ -27,8 +27,6 @@ class Construction(BaseModel):
 
 class Safety(BaseModel):
     workers_amount: int
-    good_workers_amount: int
-    bad_workers_amount: int
     workers_violation_amount: int
     object_violation_amount: int
     is_safe: int
