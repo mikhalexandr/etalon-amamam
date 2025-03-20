@@ -5,10 +5,12 @@ import cv2
 from utils.cache_colors import get_color_from_redis, store_color_in_redis
 
 
+# Получения цвета для bounding box
 def get_random_contrast_color():
     return random.randint(0, 200), random.randint(0, 200), random.randint(0, 200)
 
 
+# Генерация bounding box
 async def generate_bounding_boxes(redis_client, image, boxes):
     for box in boxes:
         x, y, w, h = int(box['x'] - box['width'] / 2), int(box['y'] - box['height'] / 2), int(box['width']), int(

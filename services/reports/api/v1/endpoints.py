@@ -21,6 +21,7 @@ router = APIRouter(
 )
 
 
+# Роутер для создания отчета
 @router.post(
     "/create/{object_id}",
     status_code=200,
@@ -38,6 +39,7 @@ async def report_create(
     return response
 
 
+# Роутер для получения списка отчетов
 @router.get(
     "/list/{object_id}",
     status_code=200,
@@ -58,6 +60,7 @@ async def reports_list(
     return response
 
 
+# Роутер для получения отчета
 @router.get(
     "/get/{object_id}/{report_id}",
     status_code=200,
@@ -79,6 +82,7 @@ async def report_get(
     return response
 
 
+# Роутер для скачивания файла из s3 хранилища
 @router.get(
     "/download/{path:path}",
     status_code=200,

@@ -14,10 +14,13 @@ from core.settings import settings
 from utils.get_s3_urls import generate_files_dict
 
 
+# Репозиторий отчетов, отвечает за взаимодействие с базой данных
 class ReportsRepository:
+    # Инициализация
     def __init__(self, db_session: AsyncSession):
         self.db_session = db_session
 
+    # Получение информации об объекте
     async def get_object_info(
             self,
             object_id: str
@@ -34,6 +37,7 @@ class ReportsRepository:
         response = result.fetchall()[0]
         return response
 
+    # Обновление счетчика отчетов
     async def update_reports_count(
             self,
             object_id: str,
@@ -46,7 +50,7 @@ class ReportsRepository:
         )
         await self.db_session.commit()
 
-
+    # Создание отчета
     async def create(
             self,
             report_id: int,
@@ -77,6 +81,7 @@ class ReportsRepository:
         await self.db_session.execute(stmt)
         await self.db_session.commit()
 
+    # Получение списка отчетов из базы данных
     async def list(
             self,
             object_id: str
@@ -113,6 +118,7 @@ class ReportsRepository:
             reports=response
         )
 
+    # Получение отчета из базы данных
     async def get(
             self,
             object_id: str,

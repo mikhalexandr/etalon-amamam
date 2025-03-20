@@ -8,6 +8,7 @@ from core.minio.access import get_minio_client
 from utils.generate_bounding_boxes import generate_bounding_boxes
 
 
+# Изменение изображения для адаптации к обработки в Roboflow
 async def resize_photo(image, max_width, max_height):
     height, width = image.shape[:2]
     if width > max_width or height > max_height:
@@ -19,6 +20,7 @@ async def resize_photo(image, max_width, max_height):
     return image
 
 
+# Создание фотографий для отчётов
 async def process_photo(
         num: int,
         object_id: str,
@@ -32,7 +34,8 @@ async def process_photo(
     image = await resize_photo(image, 1000, 1000)
     image_2 = image.copy()
 
-    result_construction = await roboflow_client.infer_async(image, model_id=str(settings.roboflow_model_ids).split(",")[0])
+    result_construction = await roboflow_client.infer_async(image,
+                                                            model_id=str(settings.roboflow_model_ids).split(",")[0])
 
     time = result_construction.get("time")
     predictions = result_construction.get("predictions", [])
@@ -57,8 +60,10 @@ async def process_photo(
             Body=image_bytes
         )
 
-    result_safety_1 = await roboflow_client.infer_async(image_2, model_id=str(settings.roboflow_model_ids).split(",")[2])
-    result_safety_2 = await roboflow_client.infer_async(image_2, model_id=str(settings.roboflow_model_ids).split(",")[1])
+    result_safety_1 = await roboflow_client.infer_async(image_2,
+                                                        model_id=str(settings.roboflow_model_ids).split(",")[2])
+    result_safety_2 = await roboflow_client.infer_async(image_2,
+                                                        model_id=str(settings.roboflow_model_ids).split(",")[1])
 
     boxes1 = result_safety_1.get("predictions", [])
     boxes2 = result_safety_2.get("predictions", [])

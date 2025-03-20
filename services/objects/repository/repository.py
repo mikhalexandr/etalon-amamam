@@ -9,10 +9,13 @@ from services.objects.schemes.objects import Objects, ObjectsListRs, ObjectsCrea
 from services.objects.models.objects import ObjectModel
 
 
+# Репозиторий объекта. Отвечает за взаимодействие с базой данных
 class ObjectsRepository:
+    # Инициализация
     def __init__(self, db_session: AsyncSession):
         self.db_session = db_session
 
+    # Создание объекта в базе данных
     async def create(
             self,
             request: ObjectsCreateRq
@@ -31,6 +34,7 @@ class ObjectsRepository:
             id=id_
         )
 
+    # Получение списка объектов из базы данных
     async def list(
             self
     ) -> ObjectsListRs:

@@ -3,6 +3,7 @@ import sys
 from loguru import logger
 
 
+# Инициализация логгера
 def init_logger() -> None:
     logger.remove()
     logger.add(

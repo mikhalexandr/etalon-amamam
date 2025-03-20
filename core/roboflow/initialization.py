@@ -4,6 +4,7 @@ from core.logger import logger
 from core.settings import settings
 
 
+# Инициализация Roboflow
 class RoboflowClient:
     _client: InferenceHTTPClient | None = None
 

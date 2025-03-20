@@ -3,6 +3,7 @@ from aiobotocore.session import get_session
 from core.settings import settings
 
 
+# Получение сессии для доступа к MinIO
 async def get_minio_client():
     session = get_session()
     return session.create_client(

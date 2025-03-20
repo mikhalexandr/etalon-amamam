@@ -4,6 +4,7 @@ from core.logger import logger
 from core.settings import settings
 
 
+# Инициализация Redis
 class RedisClient:
     _client: redis.Redis | None = None
 

@@ -11,7 +11,9 @@ from utils.generate_photos import process_photo
 from utils.generate_txt_files import process_txt
 
 
+# Usecase - отвечает за бизнес-логику отчетов
 class ReportsUseCase:
+    # Инициализация
     def __init__(
             self,
             db_session: AsyncSession,
@@ -22,6 +24,7 @@ class ReportsUseCase:
         self.redis_client = redis_client
         self.roboflow_client = roboflow_client
 
+    # Создание отчета
     async def create(
             self,
             object_id: str,
@@ -97,12 +100,14 @@ class ReportsUseCase:
             report_id=reports_count
         )
 
+    # Получение списка отчетов
     async def list(
             self,
             object_id: str
     ) -> ReportsListRs:
         return await self.repository.list(object_id)
 
+    # Получение отчета
     async def get(
             self,
             object_id: str,

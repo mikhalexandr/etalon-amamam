@@ -3,6 +3,8 @@ import io
 from core.settings import settings
 from core.minio.access import get_minio_client
 
+
+# Генерация текстовых отчетов
 async def process_txt(
         object_id,
         name,

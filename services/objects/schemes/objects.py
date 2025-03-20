@@ -3,6 +3,7 @@ from typing import List
 from pydantic import BaseModel
 
 
+# Схемы для объектов
 class ObjectsCreateRq(BaseModel):
     name: str
 

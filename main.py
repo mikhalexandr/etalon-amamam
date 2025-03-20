@@ -12,6 +12,7 @@ from core.roboflow.initialization import RoboflowClient
 from services import init_routers
 
 
+# Lifespan для инициализации и закрытия ресурсов
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
     init_logger()
@@ -26,6 +27,7 @@ async def lifespan(_app: FastAPI):
     logger.info("All resources have been successfully closed")
 
 
+# Инициализация приложения
 def init_app() -> FastAPI:
     _app = FastAPI(
         title="Etalon API",
@@ -52,6 +54,7 @@ def init_app() -> FastAPI:
 
 app = init_app()
 
+# Запуск сервера
 if __name__ == "__main__":
     host, port = settings.server_address.split(":")
     uvicorn.run(app, host=host, port=int(port))

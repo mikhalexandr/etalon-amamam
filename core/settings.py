@@ -2,6 +2,7 @@ from pydantic import Field
 from pydantic_settings import BaseSettings
 
 
+# Обработка зависимостей
 class Settings(BaseSettings):
     server_address: str = Field(..., env="SERVER_ADDRESS")
 

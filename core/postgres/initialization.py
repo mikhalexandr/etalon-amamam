@@ -9,6 +9,7 @@ from core.postgres.__all_models import load_all_models
 from core.settings import settings
 
 
+# Класс для создания таблиц
 class Base(DeclarativeBase):
     __abstract__ = True
 
@@ -32,6 +33,7 @@ class Base(DeclarativeBase):
         return f"<{self.__class__.__name__} {', '.join(cols)}>"
 
 
+# Инициализация Postgres
 class PostgresClient:
     _engine: AsyncEngine | None = None
     _async_session_maker: async_sessionmaker | None = None

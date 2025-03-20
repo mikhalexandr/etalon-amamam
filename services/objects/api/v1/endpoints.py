@@ -11,6 +11,7 @@ router = APIRouter(
 )
 
 
+# Роутер для создания объекта
 @router.post(
     "/create",
     status_code=200,
@@ -31,6 +32,7 @@ async def object_create(
     return response
 
 
+# Роутер для получения списка объектов
 @router.get(
     "/list",
     status_code=200,

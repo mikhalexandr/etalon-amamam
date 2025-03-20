@@ -3,6 +3,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from core.postgres.initialization import Base
 
 
+# Модель объекта
 class ObjectModel(Base):
     __tablename__ = "objects"
 

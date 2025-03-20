@@ -4,6 +4,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from core.postgres.initialization import Base
 
 
+# Модель отчета
 class ReportModel(Base):
     __tablename__ = "reports"
 

@@ -4,6 +4,7 @@ import pkgutil
 from typing import List
 
 
+# Загрузка models из services
 def load_all_models(module_paths: List[str]) -> None:
     for module_path in module_paths:
         package = importlib.import_module(module_path)

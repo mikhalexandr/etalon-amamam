@@ -9,6 +9,7 @@ router = APIRouter(
 )
 
 
+# Роутер по умолчанию
 @router.get(
     "/",
     response_model=DefaultRootRs,
@@ -21,6 +22,7 @@ async def root() -> DefaultRootRs:
     )
 
 
+# Роутер для проверки работоспособности сервера
 @router.get(
     "/api/ping",
     response_model=DefaultPingRs

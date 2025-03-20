@@ -3,6 +3,7 @@ from typing import Dict, List
 from pydantic import BaseModel
 
 
+# Схемы для отчетов
 class ReportsCreateRs(BaseModel):
     report_id: int
 
