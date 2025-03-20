@@ -60,11 +60,6 @@ async def process_photo(
     result_safety_1 = await roboflow_client.infer_async(image_2, model_id=str(settings.roboflow_model_ids).split(",")[2])
     result_safety_2 = await roboflow_client.infer_async(image_2, model_id=str(settings.roboflow_model_ids).split(",")[1])
 
-    print(str(settings.roboflow_model_ids).split(",")[2], str(settings.roboflow_model_ids).split(",")[1])
-
-    print(result_safety_1)
-    print(result_safety_2)
-
     boxes1 = result_safety_1.get("predictions", [])
     boxes2 = result_safety_2.get("predictions", [])
     combined_boxes = boxes1 + boxes2
