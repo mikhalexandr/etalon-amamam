@@ -26,11 +26,11 @@ async def process_txt(
         f"Время: {time}",
         f"Количество распознанных элементов: {predictions_amount}",
         f"Количество распознанных типов элементов: {types_amount}",
-        "Прогнозы:",
+        "Элементы объекта:",
     ]
     for key, value in predictions.items():
-        report_lines.append(f"*{key}:")
-        report_lines.append("   |-----------------------------|")
+        report_lines.append(f" {key}:")
+        report_lines.append("   |----------------------------------|")
         for prediction in value:
             report_lines.append(f"   | Координата X: {prediction.get('x')}")
             report_lines.append(f"   | Координата Y: {prediction.get('y')}")
@@ -38,7 +38,7 @@ async def process_txt(
             report_lines.append(f"   | Высота: {prediction.get('height')}")
             report_lines.append(f"   | Четкость распознавания: {int(round(prediction.get('confidence'), 2) * 100)}%")
             report_lines.append(f"   | Тип элемента: {prediction.get('class')}")
-            report_lines.append("   |-----------------------------|")
+            report_lines.append("   |----------------------------------|")
 
     report_text = "\n".join(report_lines)
     report_bytes = report_text.encode('utf-8')
@@ -62,11 +62,11 @@ async def process_txt(
         f"Количество рабочих с неправильной экипировкой: {count_person_without_helmet}",
         f"Количество нарушений со стороны персонала: {count_person_violations}",
         f"Количество нарушений на объекте: {count_construction_violations}",
-        "Все объекты:",
+        "Элементы объекта:",
     ]
     for key, value in filtered_boxes.items():
-        report_lines.append(f"*{key}:")
-        report_lines.append("   |-----------------------------|")
+        report_lines.append(f" {key}:")
+        report_lines.append("   |----------------------------------|")
         for prediction in value:
             report_lines.append(f"   | Координата X: {prediction.get('x')}")
             report_lines.append(f"   | Координата Y: {prediction.get('y')}")
@@ -74,7 +74,7 @@ async def process_txt(
             report_lines.append(f"   | Высота: {prediction.get('height')}")
             report_lines.append(f"   | Четкость распознавания: {int(round(prediction.get('confidence'), 2) * 100)}%")
             report_lines.append(f"   | Тип элемента: {prediction.get('class')}")
-            report_lines.append("   |-----------------------------|")
+            report_lines.append("   |----------------------------------|")
 
     report_text = "\n".join(report_lines)
     report_bytes = report_text.encode('utf-8')
