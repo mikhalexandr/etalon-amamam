@@ -85,7 +85,8 @@ class ReportsRepository:
             select(
                 ReportModel.id,
                 ReportModel.created_at,
-                ReportModel.photo_amount,
+                ReportModel.known_amount,
+                ReportModel.types_amount,
                 ReportModel.is_safe
             )
             .order_by(
