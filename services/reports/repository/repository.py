@@ -1,3 +1,4 @@
+import datetime
 from typing import List
 
 import uuid
@@ -72,8 +73,12 @@ class ReportsRepository:
             workers_amount=count_person,
             workers_violation_amount=count_person_violations,
             object_violation_amount=count_construction_violations,
-            is_safe=1 if count_person_violations == 0 and count_construction_violations == 0 else 0
+            is_safe=1 if (count_person_violations == 0 and count_construction_violations == 0) else 0
         )
+        await self.db_session.execute(stmt)
+        stmt = (update(ObjectModel)
+                .where(ObjectModel.id == object_id)
+                .values(updated_at=datetime.datetime.utcnow()))
         await self.db_session.execute(stmt)
         await self.db_session.commit()
 
