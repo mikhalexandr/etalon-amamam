@@ -10,7 +10,7 @@ class ReportsCreateRs(BaseModel):
 class Reports(BaseModel):
     id: int
     created_at: str
-    photo_amount: int
+    completeness: int
     is_safe: int
 
 

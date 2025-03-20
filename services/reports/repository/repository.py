@@ -103,7 +103,7 @@ class ReportsRepository:
                 Reports(
                     id=report.id,
                     created_at=report.created_at.strftime('%Y-%m-%d %H:%M:%S'),
-                    photo_amount=report.photo_amount,
+                    completeness=int(report.known_amount / report.types_amount) if report.types_amount != 0 else 0,
                     is_safe=report.is_safe
                 )
             )
@@ -143,7 +143,6 @@ class ReportsRepository:
             base_prefix=f"{object_id}/{report_id}/"
         )
 
-        print(urls)
         return ReportsGetRs(
             object_name=object_name[0],
             created_at=report.created_at.strftime('%Y-%m-%d %H:%M:%S'),
