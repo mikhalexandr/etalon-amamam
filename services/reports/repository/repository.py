@@ -96,7 +96,7 @@ class ReportsRepository:
                 ReportModel.is_safe
             )
             .order_by(
-                desc(ReportModel.id)
+                ReportModel.id
             )
             .where(
                 ReportModel.object_id == object_id
