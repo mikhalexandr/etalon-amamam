@@ -44,7 +44,7 @@ class ObjectsRepository:
                 ObjectModel.name
             )
             .order_by(
-                ObjectModel.updated_at
+                desc(ObjectModel.updated_at)
             )
         )
         objects = result.fetchall()
