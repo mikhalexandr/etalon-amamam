@@ -76,10 +76,6 @@ class ReportsRepository:
             is_safe=1 if (count_person_violations == 0 and count_construction_violations == 0) else 0
         )
         await self.db_session.execute(stmt)
-        stmt = (update(ObjectModel)
-                .where(ObjectModel.id == object_id)
-                .values(updated_at=datetime.datetime.utcnow()))
-        await self.db_session.execute(stmt)
         await self.db_session.commit()
 
     # Получение списка отчетов из базы данных

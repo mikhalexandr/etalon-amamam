@@ -18,7 +18,7 @@ class Base(DeclarativeBase):
     )
     updated_at: Mapped[datetime.datetime] = mapped_column(
         server_default=text("TIMEZONE('utc', now())"),
-        onupdate=datetime.datetime.utcnow(),
+        onupdate=datetime.datetime.utcnow,
     )
 
     repr_cols_num = 3
